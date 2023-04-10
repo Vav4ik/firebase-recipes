@@ -9,7 +9,6 @@ function App() {
     <div className="App">
       <div className="title-row">
         <h1 className="title">Firebase Recipes</h1>
-        <p>Some change</p>
       </div>
     </div>
   );
