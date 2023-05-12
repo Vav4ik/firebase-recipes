@@ -7,6 +7,7 @@ import {
   useState,
 } from "react";
 import { recipeType, recipeWithIdType } from "../FirebaseFirestoreService";
+import ImageUploadPreview from "./ImageUploadPreview";
 
 type AddEditRecipeFormProps = {
   existingRecipe: recipeWithIdType | null;
@@ -29,6 +30,7 @@ const AddEditRecipeForm: FC<AddEditRecipeFormProps> = ({
   const [directions, setDirections] = useState("");
   const [ingredients, setIngredients] = useState<string[]>([]);
   const [ingredientName, setIngredientName] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
 
   const resetForm = () => {
     setName("");
@@ -36,6 +38,7 @@ const AddEditRecipeForm: FC<AddEditRecipeFormProps> = ({
     setPublishDate("");
     setDirections("");
     setIngredients([]);
+    setImageUrl("");
   };
 
   useEffect(() => {
@@ -47,6 +50,7 @@ const AddEditRecipeForm: FC<AddEditRecipeFormProps> = ({
       );
       setDirections(existingRecipe.directions);
       setIngredients(existingRecipe.ingredients);
+      setImageUrl(existingRecipe.imageUrl);
     } else {
       resetForm();
     }
@@ -81,6 +85,11 @@ const AddEditRecipeForm: FC<AddEditRecipeFormProps> = ({
       return;
     }
 
+    if (!imageUrl) {
+      alert("Please add a recipe image!");
+      return;
+    }
+
     const isPublished =
       new Date(publishDate).getTime() <= new Date().getTime() ? true : false;
 
@@ -91,6 +100,7 @@ const AddEditRecipeForm: FC<AddEditRecipeFormProps> = ({
       publishDate: new Date(publishDate).getTime(),
       isPublished,
       ingredients,
+      imageUrl,
     };
     if (existingRecipe) {
       onUpdateRecipe(newRecipe, existingRecipe.id);
@@ -108,6 +118,15 @@ const AddEditRecipeForm: FC<AddEditRecipeFormProps> = ({
         onSubmit={handleRecipeFormSubmit}
       >
         <div className="top-form-section">
+          <div className="image-input-box">
+            Recipe Image
+            <ImageUploadPreview
+              basePath="recipes"
+              existingImageUrl={imageUrl}
+              handleUploadFinish={(downloadUrl) => setImageUrl(downloadUrl)}
+              handleUploadCancel={() => setImageUrl("")}
+            />
+          </div>
           <div className="fields">
             <label className="input-label recipe-label">
               Recipe Name:

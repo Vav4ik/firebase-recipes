@@ -8,6 +8,7 @@ export type recipeType = {
   publishDate: number;
   isPublished: boolean;
   ingredients: string[];
+  imageUrl: string;
 };
 export type recipeWithIdType = { id: string } & recipeType;
 export type queryType = {
@@ -55,7 +56,7 @@ const readDocuments = async (
     collectionRef = collectionRef.limit(perPage);
   }
   if (startAfter) {
-    const document = await readDocument(collection, startAfter); 
+    const document = await readDocument(collection, startAfter);
     collectionRef = collectionRef.startAfter(document).limit(perPage);
   }
   if (endBefore) {
