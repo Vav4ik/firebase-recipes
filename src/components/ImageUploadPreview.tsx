@@ -66,7 +66,9 @@ const ImageUploadPreview: FC<ImageUploadPreviewProps> = ({
     FirebaseStorageService.deleteFile(imageUrl);
     setUploadProgress(-1);
     setImageUrl("");
-    // fileInputRef.current.value = null;
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
     handleUploadCancel();
   };
 
