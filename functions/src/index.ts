@@ -1,4 +1,5 @@
 import FirebaseConfig from "./FirebaseConfig";
+import recipesApi from "./recipesApi";
 
 const functions = FirebaseConfig.functions;
 const firestore = FirebaseConfig.firestore;
@@ -142,15 +143,17 @@ export const dailyCheckRecipePublishDate = functions
       const isPublished = data.publishDate <= now ? true : false;
 
       if (isPublished) {
-        console.log(`Recipe ${data.name} is now published!`);
+        console.log(`Recipe ${data.name} with ID:${doc.id} is now published!`);
 
-        firestore
+        await firestore
           .collection("recipes")
-          .doc(data.id)
+          .doc(doc.id)
           .set({ isPublished }, { merge: true });
       }
     });
   });
+
+export const api = functions.https.onRequest(recipesApi);
 
 console.log("SERVER STARTED");
 
