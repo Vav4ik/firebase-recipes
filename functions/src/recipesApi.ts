@@ -1,6 +1,12 @@
 import * as express from "express";
 import * as bodyParser from "body-parser";
 import * as cors from "cors";
+import {
+  DocumentData,
+  DocumentReference,
+  OrderByDirection,
+  Query,
+} from "firebase-admin/firestore";
 
 import FirebaseConfig from "./FirebaseConfig";
 import Utilities from "./utilities";
@@ -14,8 +20,86 @@ app.use(cors({ origin: true }));
 app.use(bodyParser.json());
 
 // ~~RESTFUL CRUD API ENDPOINTS~~
-app.get("/", (req, res) => {
-  res.send("Hello from Firebase EXpress API!!!");
+app.get("/recipes", async (req, res) => {
+  const authorizationHeader = req.headers["authorization"];
+
+  const queryObject = req.query;
+  const category = queryObject["category"] ? queryObject["category"] : "";
+  const orderByField = queryObject["orderByField"]
+    ? (queryObject["orderByField"] as string)
+    : "";
+  const orderByDirection = queryObject["orderByDirection"]
+    ? (queryObject["orderByDirection"] as OrderByDirection)
+    : "asc";
+  const perPage = queryObject["perPage"] ? queryObject["perPage"] : "";
+  const pageNumber = queryObject["pageNumber"]
+    ? Number(queryObject["pageNumber"])
+    : 0;
+
+  let isAuth = false;
+  let collectionRef: Query<DocumentData> = firestore.collection("recipes");
+
+  try {
+    await Utilities.authorizeUser(authorizationHeader, auth);
+    isAuth = true;
+  } catch (error) {
+    collectionRef = collectionRef.where("isPublished", "==", true);
+  }
+
+  if (category) {
+    collectionRef = collectionRef.where("category", "==", category);
+  }
+  if (orderByField) {
+    collectionRef = collectionRef.orderBy(orderByField, orderByDirection);
+  }
+  if (perPage) {
+    collectionRef = collectionRef.limit(Number(perPage));
+  }
+  if (pageNumber > 0 && perPage) {
+    const pageNumberMultiplier = pageNumber - 1;
+    const offset = pageNumberMultiplier * Number(perPage);
+    //DO NOT USE offset in your projects
+    // https://firebeast.dev/tips/do-not-use-offset
+    collectionRef = collectionRef.offset(offset);
+  }
+
+  let recipeCount = 0;
+  let countDocRef: DocumentReference<DocumentData>;
+
+  if (isAuth) {
+    countDocRef = firestore.collection("recipeCounts").doc("all");
+  } else {
+    countDocRef = firestore.collection("recipeCounts").doc("published");
+  }
+
+  const countDoc = await countDocRef.get();
+  if (countDoc.exists) {
+    const countDocData = countDoc.data();
+    if (countDocData) {
+      recipeCount = countDocData.count;
+    }
+  }
+
+  try {
+    const firestoreResponse = await collectionRef.get();
+    const fetchedRecipes = firestoreResponse.docs.map((recipe) => {
+      const id = recipe.id;
+      const data = recipe.data();
+      return { ...data, id };
+    });
+    const payload = {
+      recipeCount,
+      recipes: fetchedRecipes,
+    };
+    res.status(200).json(payload);
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(400).send(error.message);
+      return;
+    }
+    res.status(400).send("Error fetching recipes.");
+    return;
+  }
 });
 
 // just another one :)
