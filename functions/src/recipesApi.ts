@@ -157,6 +157,86 @@ app.post("/recipes", async (req, res) => {
   }
 });
 
+app.put("/recipes/:id", async (req, res) => {
+  const authorizationHeader = req.headers["authorization"];
+
+  if (!authorizationHeader) {
+    res.status(401).send("Missing Authorization Header");
+    return;
+  }
+
+  try {
+    await Utilities.authorizeUser(authorizationHeader, auth);
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(401).send(error.message);
+      return;
+    }
+    res.status(401).send("Not Authorized");
+    return;
+  }
+
+  const id = req.params.id;
+  const newRecipe = req.body;
+
+  const missingFields = Utilities.validateRecipePost(newRecipe);
+  if (missingFields) {
+    res
+      .status(400)
+      .send(`Recipe is not valid. Missing/invalid fields: ${missingFields}`);
+    return;
+  }
+
+  const recipe = Utilities.sanitizeRecipePost(newRecipe);
+
+  try {
+    // can use app.patch bla-bla-bla.doc(id).set(recipe, { merge: true })
+    await firestore.collection("recipes").doc(id).set(recipe);
+    res.status(200).json({ id });
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(400).send(error.message);
+      return;
+    }
+    res.status(400).send("Error updating a recipe.");
+    return;
+  }
+});
+
+app.delete("/recipes/:id", async (req, res) => {
+  const authorizationHeader = req.headers["authorization"];
+
+  if (!authorizationHeader) {
+    res.status(401).send("Missing Authorization Header");
+    return;
+  }
+
+  try {
+    await Utilities.authorizeUser(authorizationHeader, auth);
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(401).send(error.message);
+      return;
+    }
+    res.status(401).send("Not Authorized");
+    return;
+  }
+
+  const id = req.params.id;
+  
+  try {
+    await firestore.collection("recipes").doc(id).delete();
+    res.status(200).json({ id });
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(400).send(error.message);
+      return;
+    }
+    res.status(400).send("Error updating a recipe.");
+    return;
+  }
+});
+
 //Run in local enviroment
 // npx tsc --outDir ./lib/
 // node lib/recipesApi.js
