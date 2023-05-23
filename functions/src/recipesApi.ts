@@ -105,7 +105,7 @@ app.get("/recipes", async (req, res) => {
 // just another one :)
 app.get("/batman", (req, res) => {
   res.json({
-    id: "lkisejfoi",
+    id: "multipa$$",
     name: "Batman",
     cars: ["Lambo", "Skoda", "Ford"],
     awesome: true,
