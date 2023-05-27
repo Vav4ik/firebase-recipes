@@ -29,7 +29,7 @@ const uploadFile = async (
     }
   );
 
-  // await uploadTask;
+  await uploadTask;
   const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
   return downloadUrl;
 };
