@@ -5,7 +5,6 @@ import {
   // useTransition,
   startTransition,
 } from "react";
-import firebase from "firebase/compat";
 import "./App.css";
 import FirebaseAuthService from "./FirebaseAuthService";
 import FirebaseFirestoreService, {
@@ -16,12 +15,14 @@ import FirebaseFirestoreService, {
 import FirebaseFirestoreRestService from "./FirebaseFirestoreRestService";
 import LoginForm from "./components/LoginForm";
 import AddEditRecipeForm from "./components/AddEditRecipeForm";
+import { User } from "firebase/auth";
+import { OrderByDirection } from "firebase/firestore";
 
 function App() {
   //this hook for some reason doesn't work
   // const [isPending, startTransition] = useTransition();
 
-  const [user, setUser] = useState<firebase.User | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [recipes, setRecipes] = useState<recipeWithIdType[]>([]);
   const [currentRecipe, setCurrentRecipe] = useState<recipeWithIdType | null>(
     null
@@ -72,7 +73,7 @@ function App() {
       }
       //order by
       const orderByField = "publishDate";
-      let orderByDirection: firebase.firestore.OrderByDirection | undefined;
+      let orderByDirection: OrderByDirection | undefined;
       switch (orderBy) {
         case "publishDateAsc":
           orderByDirection = "asc";

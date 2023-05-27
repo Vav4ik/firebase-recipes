@@ -1,9 +1,9 @@
 import { FC, FormEvent, useState } from "react";
-import firebase from "firebase/compat";
 import FirebaseAuthService from "../FirebaseAuthService";
+import { User } from "firebase/auth";
 
 type LoginFormProps = {
-  existingUser: firebase.User | null;
+  existingUser: User | null;
 };
 
 const LoginForm: FC<LoginFormProps> = ({ existingUser }) => {

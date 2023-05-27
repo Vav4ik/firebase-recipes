@@ -8,7 +8,7 @@ import {
 
 const storage = firebase.storage;
 
-const uploadFile = (
+const uploadFile = async (
   file: Blob | Uint8Array | ArrayBuffer,
   fullFilePath: string,
   progressCallback: (progress: number) => void
@@ -29,10 +29,9 @@ const uploadFile = (
     }
   );
 
-  return uploadTask.then(async () => {
-    const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
-    return downloadUrl;
-  });
+  // await uploadTask;
+  const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+  return downloadUrl;
 };
 
 const deleteFile = (fileDownloadUrl: string) => {
