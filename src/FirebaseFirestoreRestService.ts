@@ -1,7 +1,8 @@
+import { OrderByDirection } from "firebase/firestore";
 import firebase from "./FirebaseConfig";
 import { queryType, recipeType } from "./FirebaseFirestoreService";
 
-const auth = firebase.auth();
+const auth = firebase.auth;
 const BASE_URL = process.env.REACT_APP_CLOUD_FIRESTORE_FUNCTION_API_URL;
 
 const createDocument = async (collection: string, document: recipeType) => {
@@ -20,7 +21,7 @@ const createDocument = async (collection: string, document: recipeType) => {
       method: "POST",
       headers: {
         authorization: `Bearer ${token}`,
-        Content_Type: "application/json",
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(document),
     });
@@ -29,7 +30,9 @@ const createDocument = async (collection: string, document: recipeType) => {
       const error = { message: errorMessage };
       throw error;
     }
-    return response.json();
+    const result = await response.json();
+
+    return result;
   } catch (error) {
     if (error instanceof Error) {
       alert(error.message);
@@ -42,7 +45,7 @@ const readDocuments = async (
   collection: string,
   queries: queryType[],
   orderByField: string,
-  orderByDirection?: firebase.firestore.OrderByDirection | undefined,
+  orderByDirection?: OrderByDirection | undefined,
   perPage?: number,
   pageNumber?: number
 ) => {
@@ -75,7 +78,7 @@ const readDocuments = async (
       method: "GET",
       headers: {
         authorization: `Bearer ${token}`,
-        Content_Type: "application/json",
+        "Content-Type": "application/json",
       },
     });
 
@@ -114,7 +117,7 @@ const updateDocument = async (
       method: "PUT",
       headers: {
         authorization: `Bearer ${token}`,
-        Content_Type: "application/json",
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(document),
     });
@@ -148,7 +151,7 @@ const deleteDocument = async (collection: string, id: string) => {
       method: "DELETE",
       headers: {
         authorization: `Bearer ${token}`,
-        Content_Type: "application/json",
+        "Content-Type": "application/json",
       },
     });
     if (response.status !== 200) {

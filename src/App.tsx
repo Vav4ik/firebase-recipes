@@ -13,6 +13,7 @@ import FirebaseFirestoreService, {
   recipeType,
   recipeWithIdType,
 } from "./FirebaseFirestoreService";
+import FirebaseFirestoreRestService from "./FirebaseFirestoreRestService";
 import LoginForm from "./components/LoginForm";
 import AddEditRecipeForm from "./components/AddEditRecipeForm";
 
@@ -119,8 +120,13 @@ function App() {
   FirebaseAuthService.subcribeToAuthCahnges(setUser);
 
   const handleAddRecipe = async (newRecipe: recipeType) => {
+
     try {
-      const response = await FirebaseFirestoreService.createDocument(
+      // const response = await FirebaseFirestoreService.createDocument(
+      //   "recipes",
+      //   newRecipe
+      // );
+      const response = await FirebaseFirestoreRestService.createDocument(
         "recipes",
         newRecipe
       );
